@@ -226,6 +226,22 @@ The advantage of this is that we don't have to update our code all over the plac
 
 Need to have a way to start/stop/restart the background processes for you when you deploy your application. You MUST restart your DelayedJob processes when you deploy - these processes will still be executing on your old code base, not the new one.
 
+##Deployed on AppCloud - Solo
+Just pushed code and deployed. Created couple of tasks. Checked the database to see that they jobs were being created:
+
+    $ mysql -u deploy -pPASSWORD
+    mysql> use dj_app;
+    mysql> select * from delayed_jobs;
+
+Then needed to process them:
+    
+    $ cd /data/dj_app/current
+    $ RAILS_ENV=production bundle exec rake jobs:work
+
+Validated in the browser that these completed.
+
+Running the rake command is not optimal. Would like to run as a daemon.
+
 ##Monitoring Delayed Job
 
 ##Problems with Delayed Job
