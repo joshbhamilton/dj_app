@@ -7,6 +7,7 @@
     <th>File name</th>
     <th>Uploaded</th>
     <th>Encoded</th>
+    <th>CreatedAt</th>
     <th></th>
     <th></th>
     <th></th>
@@ -19,6 +20,7 @@
     <td><%= video.file_name %></td>
     <td><%= video.uploaded %></td>
     <td><%= video.encoded %></td>
+    <td><%= video.created_at %></td>
     <td><%= link_to 'Show', video %></td>
     <td><%= link_to 'Edit', edit_video_path(video) %></td>
     <td><%= link_to 'Destroy', video, :confirm => 'Are you sure?', :method => :delete %></td>
