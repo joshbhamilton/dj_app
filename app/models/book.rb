@@ -2,7 +2,7 @@ class Book < ActiveRecord::Base
   def combine_for_publishing
     logger.info "Combining for publishing #{self.title}..."
 #    sleep_time = rand(60)
-    sleep_time = 75
+    sleep_time = 120
     sleep(sleep_time)
     self.published = true
     self.save!
