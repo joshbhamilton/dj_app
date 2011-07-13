@@ -242,10 +242,64 @@ Validated in the browser that these completed.
 
 Running the rake command is not optimal. Would like to run as a daemon.
 
+#Use the Chef recipe for DelayedJob
+
+To do this, you can setup delayed_job to run on your Utility instances using a Chef recipe.
+
+Clone the recipes to your local machine:
+
+    $ git clone https://github.com/engineyard/ey-cloud-recipes
+    $ cd ey-cloud-recipes
+
+Edit the main recipe to include the delayed_job recipe:
+
+    # cookbooks/main/recipes/default.rb
+    require_recipe 'delayed_job'
+
+Note: You can change the `delayed_job/recipes/default.rb` if you want to run this on a different instance type, change the workers count, etc.
+
+Upload and apply the recipe (make sure you have a Utility instance running if this will be setup on a Utility instance):
+
+    $ ey recipes upload -e ENV_NAME
+    $ ey recipes apply -e ENV_NAME
+
+NOTE: If this fails, look in the Custom Log in the AppCloud dashboard to determine the error.
+
 ##Monitoring Delayed Job
+
+This also allows our delayed_job workers to be monitored by monit. This will keep our workers behaving and will kill any processes that aren't doing so. You can see the monitrc file at `/etc/monit.d/delayed_jobWORKER_NUMBER.APPNAME.monitrc`
+You can see that monit is monitoring DJ by doing the following:
+
+    $ monit summary
+    
+    # Starts DJ
+    $ /engineyard/bin/dj dj_app start production delayed_job1
 
 ##Problems with Delayed Job
 
 ##Using Delayed Job on AppInstance
 
 ##Using Delayed Job on UtilityInstance
+
+Use ey-cloud-recipe.
+
+Now that we have delayed_job added on our Utility instance, the delayed_job workers will be run on this instance. This frees our Application instance up to handle web requests.
+
+##Logs
+
+You can see the log for the delayed_job tasks being executed at `/data/<APPNAME>/current/log/delayed_job.log`.
+
+You can check /var/log/syslog to see when these workers are being killed off and started up:
+
+    $ grep delayed_job /var/log/syslog*
+    
+This will also indicate if the task exceeded the memory limit and was killed off.
+
+##Deploy Hook
+
+You don't want old workers who have old code running your tasks. So its a good idea to restart your workers.
+
+    #after_restart.rb
+    sudo 'pkill -15 -f Delayed::Worker'
+    sudo 'monit -g APPNAME restart all'
+    sudo monit restart dj_appname
